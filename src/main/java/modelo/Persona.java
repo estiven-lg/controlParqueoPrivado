@@ -93,6 +93,9 @@ public class Persona implements Serializable {
         this.fechaNacimiento = fechaNacimiento;
     }
 
+    @Override
+    public String toString() {
+        return this.nombre + " " + this.apellido;
+    }
 
-    
 }

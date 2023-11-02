@@ -1,48 +1,29 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package vista;
 
 import controlador.ControladoraPersistencia;
 import java.awt.Color;
 import java.util.Date;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
 import modelo.Persona;
+import modelo.Vehiculo;
 
-/**
- *
- * @author alumno
- */
 public class MenuPrincipal extends javax.swing.JFrame {
 
     ControladoraPersistencia controlador = new ControladoraPersistencia();
-    Boolean esNuevo = true;
+    Boolean esNuevaPersona = true;
+    Boolean esNuevoVehiculo = true;
 
     /**
      * Creates new form MenuPrincipall
      */
     public MenuPrincipal() {
         initComponents();
-        PersonaTable.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
 
-                Persona persona = controlador.encontrarPersona(Integer.parseInt(PersonaTable.getValueAt(PersonaTable.rowAtPoint(evt.getPoint()), 0).toString()));
-                System.out.println(persona.getNombre());
-                onEdit(persona);
-            }
-        });
-
-        List<Persona> personas = controlador.obtenerPersonas();
-
-        for (Persona persona : personas) {
-            this.agregarPersonaTabla(persona);
-        }
     }
 
-    public void limpiarCampos() {
+    private void limpiarPersonasCampos() {
         this.nombreTXT.setText("");
         this.apellidoTXT.setText("");
         this.nitTXT.setText("");
@@ -54,23 +35,51 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.anioTXT.setText("");
     }
 
+    private void limpiarVehiculosCampos() {
+
+        this.placaTXT.setText("");
+        this.marcaTXT.setText("");
+        this.lineaTXT.setText("");
+        this.modeloTXT.setText("");
+        this.colorTXT.setText("");
+        this.PropietarioSelect.setSelectedItem(null);
+    }
+
     private void consolePersonalog(String texto, Color color) {
-        this.errorLog.setText(texto);
-        this.errorLog.setForeground(color);
+        this.logPersona.setText(texto);
+        this.logPersona.setForeground(color);
     }
 
-    private void agregarPersonaTabla(Persona persona) {
-        DefaultTableModel modelo = (DefaultTableModel) this.PersonaTable.getModel();
-
-        Object[] obj = {Integer.toString(persona.getCui()), persona.getNombre(), persona.getApellido(), Integer.toString(persona.getTelefono())};
-        modelo.addRow(obj);
+    private void consoleVehiculoLog(String texto, Color color) {
+        this.logVehiculo.setText(texto);
+        this.logVehiculo.setForeground(color);
     }
 
-    private void onEdit(Persona persona) {
-        this.esNuevo = false;
+    private void actualizarTablaPersona() {
+        List<Persona> personas = controlador.obtenerPersonas();
+        DefaultTableModel dtm = (DefaultTableModel) this.PersonaTable.getModel();
+        dtm.setRowCount(0);
+        for (Persona persona : personas) {
+            Object[] obj = {Integer.toString(persona.getCui()), persona.getNit(), persona.getNombre(), persona.getApellido(), Integer.toString(persona.getTelefono())};
+            dtm.addRow(obj);
+        }
+    }
 
-        this.guardarBTN.setText("Actualizar");
-        this.limpiarBTN.setText("Eliminar");
+    private void actualizarTablaVehiculo() {
+        List<Vehiculo> vehiculos = controlador.obtenerVehiculos();
+        DefaultTableModel dtm = (DefaultTableModel) this.VehiculoTable.getModel();
+        dtm.setRowCount(0);
+        for (Vehiculo vehiculo : vehiculos) {
+            Object[] obj = {vehiculo.getPlaca(), vehiculo.getMarca(), vehiculo.getLinea(), vehiculo.getColor()};
+            dtm.addRow(obj);
+        }
+    }
+
+    private void onPersonaEdit(Persona persona) {
+        this.esNuevaPersona = false;
+
+        this.guardarPersonaBTN.setText("Actualizar");
+        this.limpiarPersonaBTN.setText("Eliminar");
 
         this.nitTXT.setEditable(false);
         this.cuiTXT.setEditable(false);
@@ -84,6 +93,32 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.diaTXT.setText(Integer.toString(persona.getFechaNacimiento().getDay()));
         this.mesTXT.setText(Integer.toString(persona.getFechaNacimiento().getMonth()));
         this.anioTXT.setText(Integer.toString(persona.getFechaNacimiento().getYear()));
+    }
+
+    private void onVehiculoEdit(Vehiculo vehiculo) {
+        this.esNuevoVehiculo = false;
+
+        this.guardarVehiculoBTN.setText("Actualizar");
+        this.limpiarVehiculoBTN.setText("Eliminar");
+        this.placaTXT.setEditable(false);
+
+        this.placaTXT.setText(vehiculo.getPlaca());
+        this.marcaTXT.setText(vehiculo.getMarca());
+        this.lineaTXT.setText(vehiculo.getLinea());
+        this.modeloTXT.setText(vehiculo.getModelo());
+        this.colorTXT.setText(vehiculo.getColor());
+
+        List<Vehiculo> vehiculos = controlador.obtenerVehiculos();
+        int index = 0;
+        for (Vehiculo vehiculoi : vehiculos) {
+            if (vehiculoi.getPlaca().equals(vehiculo.getPlaca())) {
+                break;
+            }
+            index++;
+        }
+        System.out.println(index);
+
+        this.PropietarioSelect.setSelectedIndex(index);
     }
 
     /**
@@ -119,16 +154,43 @@ public class MenuPrincipal extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         telefonoTXT = new javax.swing.JTextField();
         jLabel10 = new javax.swing.JLabel();
-        guardarBTN = new javax.swing.JButton();
-        limpiarBTN = new javax.swing.JButton();
-        errorLog = new javax.swing.JLabel();
+        guardarPersonaBTN = new javax.swing.JButton();
+        limpiarPersonaBTN = new javax.swing.JButton();
+        logPersona = new javax.swing.JLabel();
         nuevaPersonaBTN = new javax.swing.JButton();
-        BuscarTXT = new javax.swing.JTextField();
-        BuscarBTN = new javax.swing.JButton();
+        BuscarPersonaTXT = new javax.swing.JTextField();
+        BuscarPersonaBTN = new javax.swing.JButton();
         vehiculosPanel = new javax.swing.JPanel();
+        placaTXT = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        VehiculoTable = new javax.swing.JTable();
+        jLabel11 = new javax.swing.JLabel();
+        marcaTXT = new javax.swing.JTextField();
+        jLabel12 = new javax.swing.JLabel();
+        lineaTXT = new javax.swing.JTextField();
+        jLabel18 = new javax.swing.JLabel();
+        modeloTXT = new javax.swing.JTextField();
+        jLabel19 = new javax.swing.JLabel();
+        colorTXT = new javax.swing.JTextField();
+        jLabel20 = new javax.swing.JLabel();
+        guardarVehiculoBTN = new javax.swing.JButton();
+        limpiarVehiculoBTN = new javax.swing.JButton();
+        logVehiculo = new javax.swing.JLabel();
+        nuevoVehiculoBTN = new javax.swing.JButton();
+        BuscarVehiculoTXT = new javax.swing.JTextField();
+        BuscarVehiculoBTN = new javax.swing.JButton();
+        PropietarioSelect = new javax.swing.JComboBox<>();
+        jLabel13 = new javax.swing.JLabel();
         estacionamientosPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        personasPanel.setBackground(new java.awt.Color(255, 153, 102));
+        personasPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                personasPanelComponentShown(evt);
+            }
+        });
 
         cuiTXT.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -141,11 +203,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
             },
             new String [] {
-                "CUI", "Nombres", "Apellidos", "Telefono", " "
+                "CUI", " NIT", "Nombres", "Apellidos", "Telefono"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.String.class, java.lang.Object.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
@@ -236,17 +298,17 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         jLabel10.setText("Telefono");
 
-        guardarBTN.setText("Crear");
-        guardarBTN.addActionListener(new java.awt.event.ActionListener() {
+        guardarPersonaBTN.setText("Crear");
+        guardarPersonaBTN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                guardarBTNActionPerformed(evt);
+                guardarPersonaBTNActionPerformed(evt);
             }
         });
 
-        limpiarBTN.setText("Limpiar");
-        limpiarBTN.addActionListener(new java.awt.event.ActionListener() {
+        limpiarPersonaBTN.setText("Limpiar");
+        limpiarPersonaBTN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                limpiarBTNActionPerformed(evt);
+                limpiarPersonaBTNActionPerformed(evt);
             }
         });
 
@@ -257,16 +319,16 @@ public class MenuPrincipal extends javax.swing.JFrame {
             }
         });
 
-        BuscarTXT.addActionListener(new java.awt.event.ActionListener() {
+        BuscarPersonaTXT.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BuscarTXTActionPerformed(evt);
+                BuscarPersonaTXTActionPerformed(evt);
             }
         });
 
-        BuscarBTN.setText("Buscar");
-        BuscarBTN.addActionListener(new java.awt.event.ActionListener() {
+        BuscarPersonaBTN.setText("Buscar");
+        BuscarPersonaBTN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                BuscarBTNActionPerformed(evt);
+                BuscarPersonaBTNActionPerformed(evt);
             }
         });
 
@@ -307,21 +369,21 @@ public class MenuPrincipal extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, personasPanelLayout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(limpiarBTN)
+                        .addComponent(limpiarPersonaBTN)
                         .addGap(18, 18, 18)
-                        .addComponent(guardarBTN)
+                        .addComponent(guardarPersonaBTN)
                         .addGap(18, 18, 18)))
                 .addGroup(personasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(personasPanelLayout.createSequentialGroup()
-                        .addComponent(BuscarBTN)
+                        .addComponent(BuscarPersonaBTN)
                         .addGap(59, 59, 59)
-                        .addComponent(BuscarTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(BuscarPersonaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(nuevaPersonaBTN)
                         .addGap(19, 19, 19))
                     .addGroup(personasPanelLayout.createSequentialGroup()
                         .addGroup(personasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(errorLog)
+                            .addComponent(logPersona)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 817, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap())))
         );
@@ -331,8 +393,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 .addGap(0, 16, Short.MAX_VALUE)
                 .addGroup(personasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(nuevaPersonaBTN)
-                    .addComponent(BuscarTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(BuscarBTN))
+                    .addComponent(BuscarPersonaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BuscarPersonaBTN))
                 .addGap(18, 18, 18)
                 .addGroup(personasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(personasPanelLayout.createSequentialGroup()
@@ -383,25 +445,221 @@ public class MenuPrincipal extends javax.swing.JFrame {
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, personasPanelLayout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(personasPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(guardarBTN)
-                                    .addComponent(limpiarBTN)))))
+                                    .addComponent(guardarPersonaBTN)
+                                    .addComponent(limpiarPersonaBTN)))))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addComponent(errorLog)
+                .addComponent(logPersona)
                 .addGap(26, 26, 26))
         );
 
         navegacionPanel.addTab("Personas", personasPanel);
 
+        vehiculosPanel.setBackground(new java.awt.Color(255, 153, 102));
+        vehiculosPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                vehiculosPanelComponentShown(evt);
+            }
+        });
+
+        placaTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                placaTXTActionPerformed(evt);
+            }
+        });
+
+        VehiculoTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Placa", "Marca", " Linea", "Modelo", "Color"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane2.setViewportView(VehiculoTable);
+        if (VehiculoTable.getColumnModel().getColumnCount() > 0) {
+            VehiculoTable.getColumnModel().getColumn(0).setResizable(false);
+            VehiculoTable.getColumnModel().getColumn(1).setResizable(false);
+            VehiculoTable.getColumnModel().getColumn(2).setResizable(false);
+            VehiculoTable.getColumnModel().getColumn(3).setResizable(false);
+            VehiculoTable.getColumnModel().getColumn(4).setResizable(false);
+        }
+
+        jLabel11.setText("Placa");
+
+        marcaTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                marcaTXTActionPerformed(evt);
+            }
+        });
+
+        jLabel12.setText("Marca");
+
+        lineaTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineaTXTActionPerformed(evt);
+            }
+        });
+
+        jLabel18.setText("Linea");
+
+        modeloTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modeloTXTActionPerformed(evt);
+            }
+        });
+
+        jLabel19.setText("Modelo");
+
+        colorTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                colorTXTActionPerformed(evt);
+            }
+        });
+
+        jLabel20.setText("Color");
+
+        guardarVehiculoBTN.setText("Crear");
+        guardarVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guardarVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        limpiarVehiculoBTN.setText("Limpiar");
+        limpiarVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                limpiarVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        nuevoVehiculoBTN.setText("Nuevo Vehiculo");
+        nuevoVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nuevoVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        BuscarVehiculoTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuscarVehiculoTXTActionPerformed(evt);
+            }
+        });
+
+        BuscarVehiculoBTN.setText("Buscar");
+        BuscarVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BuscarVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        PropietarioSelect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PropietarioSelectActionPerformed(evt);
+            }
+        });
+
+        jLabel13.setText("Propietario");
+
         javax.swing.GroupLayout vehiculosPanelLayout = new javax.swing.GroupLayout(vehiculosPanel);
         vehiculosPanel.setLayout(vehiculosPanelLayout);
         vehiculosPanelLayout.setHorizontalGroup(
             vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1210, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, vehiculosPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, vehiculosPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(limpiarVehiculoBTN)
+                        .addGap(18, 18, 18)
+                        .addComponent(guardarVehiculoBTN))
+                    .addGroup(vehiculosPanelLayout.createSequentialGroup()
+                        .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(placaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel11)
+                            .addComponent(marcaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel12)
+                            .addComponent(lineaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel18)
+                            .addComponent(modeloTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel19)
+                            .addComponent(colorTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel20)
+                            .addComponent(PropietarioSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel13))
+                        .addGap(0, 118, Short.MAX_VALUE)))
+                .addGap(18, 18, 18)
+                .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(vehiculosPanelLayout.createSequentialGroup()
+                        .addComponent(BuscarVehiculoBTN)
+                        .addGap(59, 59, 59)
+                        .addComponent(BuscarVehiculoTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 390, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(nuevoVehiculoBTN)
+                        .addGap(19, 19, 19))
+                    .addGroup(vehiculosPanelLayout.createSequentialGroup()
+                        .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(logVehiculo)
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 817, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())))
         );
         vehiculosPanelLayout.setVerticalGroup(
             vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 660, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, vehiculosPanelLayout.createSequentialGroup()
+                .addGap(0, 16, Short.MAX_VALUE)
+                .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nuevoVehiculoBTN)
+                    .addComponent(BuscarVehiculoTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(BuscarVehiculoBTN))
+                .addGap(18, 18, 18)
+                .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(vehiculosPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(placaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(marcaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel18)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lineaTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel19)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(modeloTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel20)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(colorTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(36, 36, 36)
+                        .addComponent(jLabel13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(PropietarioSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(vehiculosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(guardarVehiculoBTN)
+                            .addComponent(limpiarVehiculoBTN)))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(logVehiculo)
+                .addGap(26, 26, 26))
         );
 
         navegacionPanel.addTab("Vehiculos", vehiculosPanel);
@@ -452,22 +710,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_nitTXTActionPerformed
 
-    private void domicilioTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_domicilioTXTActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_domicilioTXTActionPerformed
-
-    private void diaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diaTXTActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_diaTXTActionPerformed
-
-    private void mesTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mesTXTActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_mesTXTActionPerformed
-
-    private void anioTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anioTXTActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_anioTXTActionPerformed
-
     private void nombreTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nombreTXTActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_nombreTXTActionPerformed
@@ -480,8 +722,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_telefonoTXTActionPerformed
 
-    private void guardarBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarBTNActionPerformed
-        this.errorLog.setText("");
+    private void guardarPersonaBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarPersonaBTNActionPerformed
+        this.logPersona.setText("");
 
         Persona persona = new Persona();
 
@@ -495,7 +737,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         persona.setApellido(this.apellidoTXT.getText());
 
         if ("".equals(persona.getApellido())) {
-            this.errorLog.setText("Ingresa Apellido");
+            this.logPersona.setText("Ingresa Apellido");
             return;
         }
 
@@ -530,55 +772,229 @@ public class MenuPrincipal extends javax.swing.JFrame {
             return;
         }
 
-        if (this.esNuevo) {
-            this.controlador.CrearPersona(persona);
-            consolePersonalog("Nueva persona Registrada", Color.GREEN);
-            limpiarCampos();
-            agregarPersonaTabla(persona);
+        if (this.esNuevaPersona) {
+            this.controlador.crearPersona(persona);
+            consoleVehiculoLog("Nueva persona Registrada", Color.GREEN);
+            limpiarPersonasCampos();
+
         } else {
-            this.controlador.ActualizarPersona(persona);
-            consolePersonalog(" Registro actualizado ", Color.GREEN);
+            this.controlador.actualizarPersona(persona);
+            consoleVehiculoLog(" Registro actualizado ", Color.GREEN);
         }
 
+        this.actualizarTablaPersona();
 
-    }//GEN-LAST:event_guardarBTNActionPerformed
+    }//GEN-LAST:event_guardarPersonaBTNActionPerformed
 
-    private void limpiarBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarBTNActionPerformed
-        this.limpiarCampos();
-    }//GEN-LAST:event_limpiarBTNActionPerformed
+    private void limpiarPersonaBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarPersonaBTNActionPerformed
+
+        if (!esNuevaPersona) {
+            this.controlador.eliminarPersona(Integer.parseInt(this.cuiTXT.getText()));
+            this.nitTXT.setEditable(true);
+            this.cuiTXT.setEditable(true);
+            this.guardarPersonaBTN.setText("Registrar");
+            this.limpiarPersonaBTN.setText("Limpiar");
+
+            this.consolePersonalog("Persona elminada", Color.GREEN);
+        }
+
+        this.limpiarPersonasCampos();
+        this.actualizarTablaPersona();
+    }//GEN-LAST:event_limpiarPersonaBTNActionPerformed
 
     private void nuevaPersonaBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevaPersonaBTNActionPerformed
-        this.limpiarCampos();
+        this.limpiarPersonasCampos();
+        this.consolePersonalog("", Color.BLACK);
         this.PersonaTable.getSelectionModel().clearSelection();
-        this.esNuevo = true;
+        this.esNuevaPersona = true;
 
-        this.guardarBTN.setText("Registrar");
-        this.limpiarBTN.setText("Limpiar");
+        this.guardarPersonaBTN.setText("Registrar");
+        this.limpiarPersonaBTN.setText("Limpiar");
 
         this.nitTXT.setEditable(true);
         this.cuiTXT.setEditable(true);
     }//GEN-LAST:event_nuevaPersonaBTNActionPerformed
 
-    private void BuscarBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarBTNActionPerformed
+    private void BuscarPersonaBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarPersonaBTNActionPerformed
+        this.consolePersonalog("", Color.BLACK);
+
         try {
-            Persona persona = controlador.encontrarPersona(Integer.parseInt(this.BuscarTXT.getText()));
+            Persona persona = controlador.encontrarPersona(Integer.parseInt(this.BuscarPersonaTXT.getText()));
             if (persona == null) {
                 consolePersonalog("Persona no encontrada", Color.RED);
-            }else{
-                onEdit(persona);
-                                consolePersonalog("Persona encontrada", Color.GREEN);
+            } else {
+                onPersonaEdit(persona);
+                consolePersonalog("Persona encontrada", Color.GREEN);
             }
-        } catch (Exception e) {
-            System.out.println(e);
+        } catch (NumberFormatException e) {
+
             consolePersonalog("Cui no valido", Color.RED);
         }
 
 
-    }//GEN-LAST:event_BuscarBTNActionPerformed
+    }//GEN-LAST:event_BuscarPersonaBTNActionPerformed
 
-    private void BuscarTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarTXTActionPerformed
+    private void BuscarPersonaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarPersonaTXTActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_BuscarTXTActionPerformed
+    }//GEN-LAST:event_BuscarPersonaTXTActionPerformed
+
+    private void placaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_placaTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_placaTXTActionPerformed
+
+    private void marcaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_marcaTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_marcaTXTActionPerformed
+
+    private void lineaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineaTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_lineaTXTActionPerformed
+
+    private void modeloTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modeloTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_modeloTXTActionPerformed
+
+    private void colorTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_colorTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_colorTXTActionPerformed
+
+    private void guardarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guardarVehiculoBTNActionPerformed
+        Vehiculo vehiculo = new Vehiculo();
+
+        vehiculo.setPlaca(this.placaTXT.getText());
+        vehiculo.setMarca(this.marcaTXT.getText());
+        vehiculo.setLinea(this.lineaTXT.getText());
+        vehiculo.setModelo(this.modeloTXT.getText());
+        vehiculo.setColor(this.colorTXT.getText());
+
+        System.out.println(this.PropietarioSelect.getSelectedItem());
+
+        vehiculo.setPropietario((Persona) this.PropietarioSelect.getSelectedItem());
+
+        if (this.esNuevoVehiculo) {
+            this.controlador.crearVehiculo(vehiculo);
+            consoleVehiculoLog("Nuevc Vehiculo  Registrada", Color.GREEN);
+            limpiarVehiculosCampos();
+
+        } else {
+            this.controlador.actualizarVehiculo(vehiculo);
+            consoleVehiculoLog(" Vehiculo actualizado ", Color.GREEN);
+        }
+
+        this.actualizarTablaVehiculo();
+
+
+    }//GEN-LAST:event_guardarVehiculoBTNActionPerformed
+
+    private void limpiarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarVehiculoBTNActionPerformed
+        if (!esNuevoVehiculo) {
+            this.controlador.eliminarVehiculo(this.placaTXT.getText());
+            this.placaTXT.setEditable(true);
+
+            this.guardarVehiculoBTN.setText("Registrar");
+            this.limpiarVehiculoBTN.setText("Limpiar");
+
+            this.consoleVehiculoLog("Persona elminada", Color.GREEN);
+        }
+
+        this.limpiarVehiculosCampos();
+    }//GEN-LAST:event_limpiarVehiculoBTNActionPerformed
+
+    private void nuevoVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nuevoVehiculoBTNActionPerformed
+        this.limpiarVehiculosCampos();
+        this.consoleVehiculoLog("", Color.BLACK);
+        this.VehiculoTable.getSelectionModel().clearSelection();
+        this.esNuevoVehiculo = true;
+
+        this.guardarVehiculoBTN.setText("Registrar");
+        this.limpiarVehiculoBTN.setText("Limpiar");
+
+        this.placaTXT.setEditable(true);
+
+    }//GEN-LAST:event_nuevoVehiculoBTNActionPerformed
+
+    private void BuscarVehiculoTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarVehiculoTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_BuscarVehiculoTXTActionPerformed
+
+    private void BuscarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarVehiculoBTNActionPerformed
+        try {
+            Vehiculo vehiculo = controlador.encontrarVehiculo(this.BuscarVehiculoTXT.getText());
+            System.out.println(vehiculo);
+            if (vehiculo == null) {
+                consoleVehiculoLog("Vehiculo no encontrado", Color.RED);
+            } else {
+                onVehiculoEdit(vehiculo);
+                consoleVehiculoLog("Vehiculo encontrado", Color.GREEN);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            consoleVehiculoLog("placa no valida", Color.RED);
+        }
+    }//GEN-LAST:event_BuscarVehiculoBTNActionPerformed
+
+    private void domicilioTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_domicilioTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_domicilioTXTActionPerformed
+
+    private void anioTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anioTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_anioTXTActionPerformed
+
+    private void mesTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mesTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_mesTXTActionPerformed
+
+    private void diaTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_diaTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_diaTXTActionPerformed
+
+    private void PropietarioSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PropietarioSelectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_PropietarioSelectActionPerformed
+
+    private void vehiculosPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_vehiculosPanelComponentShown
+
+        List<Persona> personas = controlador.obtenerPersonas();
+
+        for (Persona persona : personas) {
+            this.PropietarioSelect.addItem(persona);
+        }
+        this.PropietarioSelect.setSelectedItem(null);
+
+        this.VehiculoTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                consoleVehiculoLog("", Color.BLACK);
+
+                Vehiculo vehiculo = controlador.encontrarVehiculo(
+                        VehiculoTable.getValueAt(VehiculoTable.rowAtPoint(evt.getPoint()), 0).toString()
+                );
+                onVehiculoEdit(vehiculo);
+            }
+        });
+        actualizarTablaVehiculo();
+    }//GEN-LAST:event_vehiculosPanelComponentShown
+
+    private void personasPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_personasPanelComponentShown
+
+        this.PersonaTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                consolePersonalog("", Color.BLACK);
+                Persona persona = controlador.encontrarPersona(
+                        Integer.parseInt(
+                                PersonaTable.getValueAt(PersonaTable.rowAtPoint(evt.getPoint()), 0).toString()
+                        )
+                );
+                System.out.println(persona.getNombre());
+                onPersonaEdit(persona);
+            }
+        });
+
+        this.actualizarTablaPersona();
+
+    }//GEN-LAST:event_personasPanelComponentShown
 
     /**
      * @param args the command line arguments
@@ -617,21 +1033,32 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton BuscarBTN;
-    private javax.swing.JTextField BuscarTXT;
+    private javax.swing.JButton BuscarPersonaBTN;
+    private javax.swing.JTextField BuscarPersonaTXT;
+    private javax.swing.JButton BuscarVehiculoBTN;
+    private javax.swing.JTextField BuscarVehiculoTXT;
     private javax.swing.JTable PersonaTable;
     private javax.swing.JPanel PrincipalPanel;
+    private javax.swing.JComboBox<Persona> PropietarioSelect;
+    private javax.swing.JTable VehiculoTable;
     private javax.swing.JTextField anioTXT;
     private javax.swing.JTextField apellidoTXT;
+    private javax.swing.JTextField colorTXT;
     private javax.swing.JTextField cuiTXT;
     private javax.swing.JTextField diaTXT;
     private javax.swing.JTextField domicilioTXT;
-    private javax.swing.JLabel errorLog;
     private javax.swing.JPanel estacionamientosPanel;
-    private javax.swing.JButton guardarBTN;
+    private javax.swing.JButton guardarPersonaBTN;
+    private javax.swing.JButton guardarVehiculoBTN;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -640,13 +1067,22 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton limpiarBTN;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton limpiarPersonaBTN;
+    private javax.swing.JButton limpiarVehiculoBTN;
+    private javax.swing.JTextField lineaTXT;
+    private javax.swing.JLabel logPersona;
+    private javax.swing.JLabel logVehiculo;
+    private javax.swing.JTextField marcaTXT;
     private javax.swing.JTextField mesTXT;
+    private javax.swing.JTextField modeloTXT;
     private javax.swing.JTabbedPane navegacionPanel;
     private javax.swing.JTextField nitTXT;
     private javax.swing.JTextField nombreTXT;
     private javax.swing.JButton nuevaPersonaBTN;
+    private javax.swing.JButton nuevoVehiculoBTN;
     private javax.swing.JPanel personasPanel;
+    private javax.swing.JTextField placaTXT;
     private javax.swing.JTextField telefonoTXT;
     private javax.swing.JPanel vehiculosPanel;
     // End of variables declaration//GEN-END:variables

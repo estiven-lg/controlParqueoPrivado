@@ -2,12 +2,14 @@ package vista;
 
 import controlador.ControladoraPersistencia;
 import java.awt.Color;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.table.DefaultTableModel;
+import modelo.Estacionamiento;
 import modelo.Persona;
 import modelo.Vehiculo;
+import servicios.Validaciones;
 
 public class MenuPrincipal extends javax.swing.JFrame {
 
@@ -55,12 +57,17 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.logVehiculo.setForeground(color);
     }
 
+    private void consoleEstaionamientoLog(String texto, Color color) {
+        this.logVehiculo.setText(texto);
+        this.logVehiculo.setForeground(color);
+    }
+
     private void actualizarTablaPersona() {
         List<Persona> personas = controlador.obtenerPersonas();
         DefaultTableModel dtm = (DefaultTableModel) this.PersonaTable.getModel();
         dtm.setRowCount(0);
         for (Persona persona : personas) {
-            Object[] obj = {Integer.toString(persona.getCui()), persona.getNit(), persona.getNombre(), persona.getApellido(), Integer.toString(persona.getTelefono())};
+            Object[] obj = {Long.toString(persona.getCui()), persona.getNit(), persona.getNombre(), persona.getApellido(), Integer.toString(persona.getTelefono())};
             dtm.addRow(obj);
         }
     }
@@ -70,8 +77,27 @@ public class MenuPrincipal extends javax.swing.JFrame {
         DefaultTableModel dtm = (DefaultTableModel) this.VehiculoTable.getModel();
         dtm.setRowCount(0);
         for (Vehiculo vehiculo : vehiculos) {
-            Object[] obj = {vehiculo.getPlaca(), vehiculo.getMarca(), vehiculo.getLinea(), vehiculo.getColor()};
+            Object[] obj = {vehiculo.getPlaca(), vehiculo.getMarca(), vehiculo.getLinea(), vehiculo.getModelo(), vehiculo.getColor()};
             dtm.addRow(obj);
+        }
+    }
+
+    private void actualizarTablaEstacionamientos() {
+        DefaultTableModel dtm = (DefaultTableModel) this.estacionamientoTable.getModel();
+        dtm.setRowCount(0);
+        for (int i = 1; i <= 30; i++) {
+            Estacionamiento estacionamiento = this.controlador.encontrarEstacionamieto(i);
+            if (estacionamiento == null || estacionamiento.getVehiculo() == null) {
+                Object[] obj = {Integer.toString(i), "Disponible", "", ""};
+                dtm.addRow(obj);
+            } else {
+                Object[] obj = {
+                    Integer.toString(i),
+                    estacionamiento.isDisponible() ? "Disponible" : "Ocupado",
+                    estacionamiento.getVehiculo().getPlaca(),
+                    estacionamiento.getVehiculo().getPropietario().getNombre() + " " + estacionamiento.getVehiculo().getPropietario().getApellido(),};
+                dtm.addRow(obj);
+            }
         }
     }
 
@@ -87,7 +113,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.nombreTXT.setText(persona.getNombre());
         this.apellidoTXT.setText(persona.getApellido());
         this.nitTXT.setText(persona.getNit());
-        this.cuiTXT.setText(Integer.toString(persona.getCui()));
+        this.cuiTXT.setText(Long.toString(persona.getCui()));
         this.telefonoTXT.setText(Integer.toString(persona.getTelefono()));
         this.domicilioTXT.setText(persona.getDomicilio());
         this.diaTXT.setText(Integer.toString(persona.getFechaNacimiento().getDay()));
@@ -109,7 +135,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.colorTXT.setText(vehiculo.getColor());
 
         List<Vehiculo> vehiculos = controlador.obtenerVehiculos();
-        int index = 0;
+        int index = -1;
         for (Vehiculo vehiculoi : vehiculos) {
             if (vehiculoi.getPlaca().equals(vehiculo.getPlaca())) {
                 break;
@@ -119,6 +145,41 @@ public class MenuPrincipal extends javax.swing.JFrame {
         System.out.println(index);
 
         this.PropietarioSelect.setSelectedIndex(index);
+    }
+
+    private void onEstacionamientoEdit(Estacionamiento estacionamiento) {
+
+        this.vehiculoSelect.setEditable(true);
+        this.numEstacionamientoLabel.setText(Integer.toString(estacionamiento.getNumeroParqueo()));
+
+        if (estacionamiento.isDisponible()) {
+            this.isDisponibleLabel.setText("Disponble");
+            this.isDisponibleLabel.setForeground(Color.GREEN);
+        } else {
+            this.isDisponibleLabel.setText("Ocupado");
+            this.isDisponibleLabel.setForeground(Color.RED);
+        }
+
+        if (estacionamiento.getVehiculo() != null) {
+            this.estacionamieto_propietarioTXT.setText(estacionamiento.getVehiculo().getPropietario().getNombre() + " " + estacionamiento.getVehiculo().getPropietario().getApellido());
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY hh:mm:ss");
+
+            this.FechaRegistroLabel.setText(sdf.format(estacionamiento.getFechaRegistro()));
+            List<Vehiculo> vehiculos = controlador.obtenerVehiculos();
+            int index = 0;
+            for (Vehiculo vehiculoi : vehiculos) {
+                if (vehiculoi.getPlaca().equals(estacionamiento.getVehiculo().getPlaca())) {
+                    break;
+                }
+                index++;
+            }
+
+            this.vehiculoSelect.setSelectedIndex(index);
+        } else {
+            this.estacionamieto_propietarioTXT.setText("");
+            this.FechaRegistroLabel.setText("");
+            this.vehiculoSelect.setSelectedItem(null);
+        }
     }
 
     /**
@@ -181,11 +242,25 @@ public class MenuPrincipal extends javax.swing.JFrame {
         BuscarVehiculoBTN = new javax.swing.JButton();
         PropietarioSelect = new javax.swing.JComboBox<>();
         jLabel13 = new javax.swing.JLabel();
-        estacionamientosPanel = new javax.swing.JPanel();
+        estacionamientoPanel = new javax.swing.JPanel();
+        numEstacionamientoLabel = new javax.swing.JTextField();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        estacionamientoTable = new javax.swing.JTable();
+        jLabel14 = new javax.swing.JLabel();
+        egresarVehiculoBTN = new javax.swing.JButton();
+        ingresarVehiculoBTN = new javax.swing.JButton();
+        logEstacionamiento = new javax.swing.JLabel();
+        vehiculoSelect = new javax.swing.JComboBox<>();
+        jLabel16 = new javax.swing.JLabel();
+        estacionamieto_propietarioTXT = new javax.swing.JTextField();
+        jLabel17 = new javax.swing.JLabel();
+        isDisponibleLabel = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
+        FechaRegistroLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        personasPanel.setBackground(new java.awt.Color(255, 153, 102));
+        personasPanel.setBackground(new java.awt.Color(204, 255, 255));
         personasPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 personasPanelComponentShown(evt);
@@ -455,7 +530,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         navegacionPanel.addTab("Personas", personasPanel);
 
-        vehiculosPanel.setBackground(new java.awt.Color(255, 153, 102));
+        vehiculosPanel.setBackground(new java.awt.Color(204, 255, 255));
         vehiculosPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 vehiculosPanelComponentShown(evt);
@@ -498,6 +573,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
             VehiculoTable.getColumnModel().getColumn(2).setResizable(false);
             VehiculoTable.getColumnModel().getColumn(3).setResizable(false);
             VehiculoTable.getColumnModel().getColumn(4).setResizable(false);
+            VehiculoTable.getColumnModel().getColumn(4).setHeaderValue("Color");
         }
 
         jLabel11.setText("Placa");
@@ -664,18 +740,159 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
         navegacionPanel.addTab("Vehiculos", vehiculosPanel);
 
-        javax.swing.GroupLayout estacionamientosPanelLayout = new javax.swing.GroupLayout(estacionamientosPanel);
-        estacionamientosPanel.setLayout(estacionamientosPanelLayout);
-        estacionamientosPanelLayout.setHorizontalGroup(
-            estacionamientosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1210, Short.MAX_VALUE)
+        estacionamientoPanel.setBackground(new java.awt.Color(204, 255, 255));
+        estacionamientoPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                estacionamientoPanelComponentShown(evt);
+            }
+        });
+
+        numEstacionamientoLabel.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        numEstacionamientoLabel.setEnabled(false);
+        numEstacionamientoLabel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                numEstacionamientoLabelActionPerformed(evt);
+            }
+        });
+
+        estacionamientoTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "# estacionamiento", "estado", "Vehiculo", "Propietario "
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(estacionamientoTable);
+        if (estacionamientoTable.getColumnModel().getColumnCount() > 0) {
+            estacionamientoTable.getColumnModel().getColumn(0).setResizable(false);
+            estacionamientoTable.getColumnModel().getColumn(1).setResizable(false);
+            estacionamientoTable.getColumnModel().getColumn(2).setResizable(false);
+            estacionamientoTable.getColumnModel().getColumn(3).setResizable(false);
+        }
+
+        jLabel14.setText("Numero de estacionamiento");
+
+        egresarVehiculoBTN.setText("Egresar");
+        egresarVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                egresarVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        ingresarVehiculoBTN.setText("Ingresar");
+        ingresarVehiculoBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ingresarVehiculoBTNActionPerformed(evt);
+            }
+        });
+
+        vehiculoSelect.setEnabled(false);
+        vehiculoSelect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vehiculoSelectActionPerformed(evt);
+            }
+        });
+
+        jLabel16.setText("Vehiculo");
+
+        estacionamieto_propietarioTXT.setDisabledTextColor(new java.awt.Color(0, 0, 0));
+        estacionamieto_propietarioTXT.setEnabled(false);
+        estacionamieto_propietarioTXT.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                estacionamieto_propietarioTXTActionPerformed(evt);
+            }
+        });
+
+        jLabel17.setText("Propietario");
+
+        isDisponibleLabel.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+
+        jLabel15.setText("Fecha de Registro");
+
+        FechaRegistroLabel.setFont(new java.awt.Font("Sitka Text", 1, 12)); // NOI18N
+
+        javax.swing.GroupLayout estacionamientoPanelLayout = new javax.swing.GroupLayout(estacionamientoPanel);
+        estacionamientoPanel.setLayout(estacionamientoPanelLayout);
+        estacionamientoPanelLayout.setHorizontalGroup(
+            estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, estacionamientoPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, estacionamientoPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(ingresarVehiculoBTN)
+                        .addGap(18, 18, 18)
+                        .addComponent(egresarVehiculoBTN))
+                    .addGroup(estacionamientoPanelLayout.createSequentialGroup()
+                        .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel14)
+                            .addComponent(vehiculoSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16)
+                            .addComponent(estacionamieto_propietarioTXT, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel17)
+                            .addGroup(estacionamientoPanelLayout.createSequentialGroup()
+                                .addComponent(numEstacionamientoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(55, 55, 55)
+                                .addComponent(isDisponibleLabel))
+                            .addComponent(jLabel15)
+                            .addComponent(FechaRegistroLabel))
+                        .addGap(0, 97, Short.MAX_VALUE)))
+                .addGap(18, 18, 18)
+                .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(logEstacionamiento)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 817, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
-        estacionamientosPanelLayout.setVerticalGroup(
-            estacionamientosPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 660, Short.MAX_VALUE)
+        estacionamientoPanelLayout.setVerticalGroup(
+            estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, estacionamientoPanelLayout.createSequentialGroup()
+                .addGap(0, 57, Short.MAX_VALUE)
+                .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(estacionamientoPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel14)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(numEstacionamientoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(isDisponibleLabel))
+                        .addGap(18, 18, 18)
+                        .addComponent(jLabel16)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(vehiculoSelect, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
+                        .addComponent(jLabel17)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(estacionamieto_propietarioTXT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(FechaRegistroLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(estacionamientoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(egresarVehiculoBTN)
+                            .addComponent(ingresarVehiculoBTN)))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 559, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(logEstacionamiento)
+                .addGap(26, 26, 26))
         );
 
-        navegacionPanel.addTab("Estacionamientos", estacionamientosPanel);
+        navegacionPanel.addTab("Estacionamientos", estacionamientoPanel);
 
         javax.swing.GroupLayout PrincipalPanelLayout = new javax.swing.GroupLayout(PrincipalPanel);
         PrincipalPanel.setLayout(PrincipalPanelLayout);
@@ -728,34 +945,44 @@ public class MenuPrincipal extends javax.swing.JFrame {
         Persona persona = new Persona();
 
         persona.setNombre(this.nombreTXT.getText());
-
         if ("".equals(persona.getNombre())) {
-            consolePersonalog("Ingresa Nombre", Color.RED);
+            this.consolePersonalog("Ingresa Nombre", Color.RED);
             return;
         }
 
         persona.setApellido(this.apellidoTXT.getText());
-
         if ("".equals(persona.getApellido())) {
             this.logPersona.setText("Ingresa Apellido");
             return;
         }
 
         persona.setDomicilio(this.domicilioTXT.getText());
-
         if ("".equals(persona.getDomicilio())) {
-            consolePersonalog("Ingresa un domicilio", Color.RED);
+            this.consolePersonalog("Ingresa un domicilio", Color.RED);
             return;
         }
 
-        persona.setCui(Integer.parseInt(this.cuiTXT.getText()));
+        try {
+            persona.setCui(Long.parseLong(this.cuiTXT.getText()));
+            if (!Validaciones.validarCUI(persona.getCui())) {
+                this.consolePersonalog("Cui no valido 1", Color.RED);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            this.consolePersonalog("Cui no valido 2", Color.RED);
+            return;
+        }
 
         persona.setNit(this.nitTXT.getText());
+        if (!Validaciones.validarNIT(persona.getNit())) {
+            this.consolePersonalog("NIT no valido", Color.RED);
+            return;
+        }
 
         try {
             persona.setTelefono(Integer.parseInt(this.telefonoTXT.getText()));
         } catch (NumberFormatException e) {
-            consolePersonalog("Numero telefonico no valido", Color.RED);
+            this.consolePersonalog("Numero telefonico no valido", Color.RED);
             return;
         }
 
@@ -765,6 +992,15 @@ public class MenuPrincipal extends javax.swing.JFrame {
                     Integer.parseInt(this.mesTXT.getText()),
                     Integer.parseInt(this.diaTXT.getText())
             );
+            if (!Validaciones.validarFecha(
+                    Integer.parseInt(this.diaTXT.getText()),
+                    Integer.parseInt(this.mesTXT.getText()),
+                    Integer.parseInt(this.anioTXT.getText())
+            )) {
+                this.consolePersonalog("Fecha de Nacimiento no valida", Color.RED);
+
+                return;
+            }
 
             persona.setFechaNacimiento(fechaNac);
         } catch (Exception e) {
@@ -773,13 +1009,17 @@ public class MenuPrincipal extends javax.swing.JFrame {
         }
 
         if (this.esNuevaPersona) {
+            if (this.controlador.yaExistePersona(persona.getCui())) {
+                this.consolePersonalog("Este cui ya esta en uso", Color.RED);
+                return;
+            }
             this.controlador.crearPersona(persona);
-            consoleVehiculoLog("Nueva persona Registrada", Color.GREEN);
-            limpiarPersonasCampos();
+            this.consolePersonalog("Nueva persona Registrada", Color.GREEN);
+            this.limpiarPersonasCampos();
 
         } else {
             this.controlador.actualizarPersona(persona);
-            consoleVehiculoLog(" Registro actualizado ", Color.GREEN);
+            this.consolePersonalog(" Registro actualizado ", Color.GREEN);
         }
 
         this.actualizarTablaPersona();
@@ -789,7 +1029,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private void limpiarPersonaBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarPersonaBTNActionPerformed
 
         if (!esNuevaPersona) {
-            this.controlador.eliminarPersona(Integer.parseInt(this.cuiTXT.getText()));
+            this.controlador.eliminarPersona(Long.parseLong(this.cuiTXT.getText()));
             this.nitTXT.setEditable(true);
             this.cuiTXT.setEditable(true);
             this.guardarPersonaBTN.setText("Registrar");
@@ -819,7 +1059,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.consolePersonalog("", Color.BLACK);
 
         try {
-            Persona persona = controlador.encontrarPersona(Integer.parseInt(this.BuscarPersonaTXT.getText()));
+            Persona persona = controlador.encontrarPersona(Long.parseLong(this.BuscarPersonaTXT.getText()));
             if (persona == null) {
                 consolePersonalog("Persona no encontrada", Color.RED);
             } else {
@@ -862,28 +1102,54 @@ public class MenuPrincipal extends javax.swing.JFrame {
         Vehiculo vehiculo = new Vehiculo();
 
         vehiculo.setPlaca(this.placaTXT.getText());
+        if (!Validaciones.validarPlacas(vehiculo.getPlaca())) {
+            this.consoleVehiculoLog("Placa no valida", Color.RED);
+            return;
+        }
         vehiculo.setMarca(this.marcaTXT.getText());
-        vehiculo.setLinea(this.lineaTXT.getText());
-        vehiculo.setModelo(this.modeloTXT.getText());
-        vehiculo.setColor(this.colorTXT.getText());
+        if ("".equals(vehiculo.getMarca())) {
+            this.consoleVehiculoLog("Ingresa Marca", Color.RED);
+            return;
+        }
 
-        System.out.println(this.PropietarioSelect.getSelectedItem());
+        vehiculo.setLinea(this.lineaTXT.getText());
+        if ("".equals(vehiculo.getLinea())) {
+            this.consoleVehiculoLog("Ingresa Linea", Color.RED);
+            return;
+        }
+        vehiculo.setModelo(this.modeloTXT.getText());
+        if ("".equals(vehiculo.getModelo())) {
+            this.consoleVehiculoLog("Ingresa modelo", Color.RED);
+            return;
+        }
+
+        vehiculo.setColor(this.colorTXT.getText());
+        if ("".equals(vehiculo.getColor())) {
+            this.consoleVehiculoLog("Ingresa Color", Color.RED);
+            return;
+        }
 
         vehiculo.setPropietario((Persona) this.PropietarioSelect.getSelectedItem());
 
+        if (vehiculo.getPropietario() == null) {
+            this.consoleVehiculoLog("Selecciona un propietario", Color.RED);
+            return;
+        }
+
         if (this.esNuevoVehiculo) {
+            if (controlador.yaExisteVehiculo(vehiculo.getPlaca())) {
+                this.consoleVehiculoLog("Ya existe este vehiculo", Color.RED);
+            }
             this.controlador.crearVehiculo(vehiculo);
-            consoleVehiculoLog("Nuevc Vehiculo  Registrada", Color.GREEN);
-            limpiarVehiculosCampos();
+            this.consoleVehiculoLog("Nuevc Vehiculo  Registrado", Color.GREEN);
+            this.limpiarVehiculosCampos();
 
         } else {
             this.controlador.actualizarVehiculo(vehiculo);
-            consoleVehiculoLog(" Vehiculo actualizado ", Color.GREEN);
+            this.consoleVehiculoLog(" Vehiculo actualizado ", Color.GREEN);
         }
 
         this.actualizarTablaVehiculo();
-
-
     }//GEN-LAST:event_guardarVehiculoBTNActionPerformed
 
     private void limpiarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_limpiarVehiculoBTNActionPerformed
@@ -894,7 +1160,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
             this.guardarVehiculoBTN.setText("Registrar");
             this.limpiarVehiculoBTN.setText("Limpiar");
 
-            this.consoleVehiculoLog("Persona elminada", Color.GREEN);
+            this.consoleVehiculoLog("Vehiculo elminada", Color.GREEN);
+            this.actualizarTablaVehiculo();
         }
 
         this.limpiarVehiculosCampos();
@@ -920,12 +1187,12 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private void BuscarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BuscarVehiculoBTNActionPerformed
         try {
             Vehiculo vehiculo = controlador.encontrarVehiculo(this.BuscarVehiculoTXT.getText());
-            System.out.println(vehiculo);
+
             if (vehiculo == null) {
-                consoleVehiculoLog("Vehiculo no encontrado", Color.RED);
+                this.consoleVehiculoLog("Vehiculo no encontrado", Color.RED);
             } else {
-                onVehiculoEdit(vehiculo);
-                consoleVehiculoLog("Vehiculo encontrado", Color.GREEN);
+                this.onVehiculoEdit(vehiculo);
+                this.consoleVehiculoLog("Vehiculo encontrado", Color.GREEN);
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -955,6 +1222,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
 
     private void vehiculosPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_vehiculosPanelComponentShown
 
+        this.PropietarioSelect.removeAllItems();
+
         List<Persona> personas = controlador.obtenerPersonas();
 
         for (Persona persona : personas) {
@@ -973,7 +1242,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
                 onVehiculoEdit(vehiculo);
             }
         });
-        actualizarTablaVehiculo();
+        this.actualizarTablaVehiculo();
     }//GEN-LAST:event_vehiculosPanelComponentShown
 
     private void personasPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_personasPanelComponentShown
@@ -983,11 +1252,10 @@ public class MenuPrincipal extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 consolePersonalog("", Color.BLACK);
                 Persona persona = controlador.encontrarPersona(
-                        Integer.parseInt(
+                        Long.parseLong(
                                 PersonaTable.getValueAt(PersonaTable.rowAtPoint(evt.getPoint()), 0).toString()
                         )
                 );
-                System.out.println(persona.getNombre());
                 onPersonaEdit(persona);
             }
         });
@@ -995,6 +1263,66 @@ public class MenuPrincipal extends javax.swing.JFrame {
         this.actualizarTablaPersona();
 
     }//GEN-LAST:event_personasPanelComponentShown
+
+    private void egresarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_egresarVehiculoBTNActionPerformed
+        int numEstacionamiento = Integer.parseInt(this.numEstacionamientoLabel.getText());
+        this.PropietarioSelect.setSelectedItem(null);
+
+        Estacionamiento estacionamiento = controlador.vaciarEstacionamiento(numEstacionamiento);
+        this.onEstacionamientoEdit(estacionamiento);
+
+        this.actualizarTablaEstacionamientos();
+    }//GEN-LAST:event_egresarVehiculoBTNActionPerformed
+
+    private void ingresarVehiculoBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ingresarVehiculoBTNActionPerformed
+        int numEstacionamiento = Integer.parseInt(this.numEstacionamientoLabel.getText());
+        Vehiculo vehiculo = (Vehiculo) this.vehiculoSelect.getSelectedItem();
+
+        Estacionamiento estacionamiento = this.controlador.llenarEstacionamiento(numEstacionamiento, vehiculo);
+        this.onEstacionamientoEdit(estacionamiento);
+        this.actualizarTablaEstacionamientos();
+
+    }//GEN-LAST:event_ingresarVehiculoBTNActionPerformed
+
+    private void vehiculoSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vehiculoSelectActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_vehiculoSelectActionPerformed
+
+    private void estacionamientoPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_estacionamientoPanelComponentShown
+
+        this.vehiculoSelect.removeAllItems();
+
+        List<Vehiculo> vehiculos = this.controlador.obtenerVehiculos();
+
+        for (Vehiculo vehiculo : vehiculos) {
+            this.vehiculoSelect.addItem(vehiculo);
+        }
+        this.vehiculoSelect.setSelectedItem(null);
+
+        this.estacionamientoTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                consoleEstaionamientoLog("", Color.BLACK);
+                vehiculoSelect.setEnabled(true);
+                Estacionamiento estacionamiento = controlador.encontrarEstacionamieto(
+                        Integer.parseInt(
+                                estacionamientoTable.getValueAt(estacionamientoTable.rowAtPoint(evt.getPoint()), 0).toString()
+                        )
+                );
+                onEstacionamientoEdit(estacionamiento);
+            }
+        });
+        this.actualizarTablaEstacionamientos();
+
+    }//GEN-LAST:event_estacionamientoPanelComponentShown
+
+    private void estacionamieto_propietarioTXTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_estacionamieto_propietarioTXTActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_estacionamieto_propietarioTXTActionPerformed
+
+    private void numEstacionamientoLabelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_numEstacionamientoLabelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_numEstacionamientoLabelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1037,6 +1365,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField BuscarPersonaTXT;
     private javax.swing.JButton BuscarVehiculoBTN;
     private javax.swing.JTextField BuscarVehiculoTXT;
+    private javax.swing.JLabel FechaRegistroLabel;
     private javax.swing.JTable PersonaTable;
     private javax.swing.JPanel PrincipalPanel;
     private javax.swing.JComboBox<Persona> PropietarioSelect;
@@ -1047,14 +1376,23 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField cuiTXT;
     private javax.swing.JTextField diaTXT;
     private javax.swing.JTextField domicilioTXT;
-    private javax.swing.JPanel estacionamientosPanel;
+    private javax.swing.JButton egresarVehiculoBTN;
+    private javax.swing.JPanel estacionamientoPanel;
+    private javax.swing.JTable estacionamientoTable;
+    private javax.swing.JTextField estacionamieto_propietarioTXT;
     private javax.swing.JButton guardarPersonaBTN;
     private javax.swing.JButton guardarVehiculoBTN;
+    private javax.swing.JButton ingresarVehiculoBTN;
+    private javax.swing.JLabel isDisponibleLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
+    private javax.swing.JLabel jLabel16;
+    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
@@ -1068,9 +1406,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton limpiarPersonaBTN;
     private javax.swing.JButton limpiarVehiculoBTN;
     private javax.swing.JTextField lineaTXT;
+    private javax.swing.JLabel logEstacionamiento;
     private javax.swing.JLabel logPersona;
     private javax.swing.JLabel logVehiculo;
     private javax.swing.JTextField marcaTXT;
@@ -1081,9 +1421,11 @@ public class MenuPrincipal extends javax.swing.JFrame {
     private javax.swing.JTextField nombreTXT;
     private javax.swing.JButton nuevaPersonaBTN;
     private javax.swing.JButton nuevoVehiculoBTN;
+    private javax.swing.JTextField numEstacionamientoLabel;
     private javax.swing.JPanel personasPanel;
     private javax.swing.JTextField placaTXT;
     private javax.swing.JTextField telefonoTXT;
+    private javax.swing.JComboBox<Vehiculo> vehiculoSelect;
     private javax.swing.JPanel vehiculosPanel;
     // End of variables declaration//GEN-END:variables
 }

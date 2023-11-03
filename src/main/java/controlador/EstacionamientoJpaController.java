@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package controlador;
 
 import controlador.exceptions.NonexistentEntityException;
@@ -16,11 +12,8 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Estacionamiento;
+import modelo.Vehiculo;
 
-/**
- *
- * @author alumno
- */
 public class EstacionamientoJpaController implements Serializable {
 
     public EstacionamientoJpaController(EntityManagerFactory emf) {
@@ -127,6 +120,19 @@ public class EstacionamientoJpaController implements Serializable {
         EntityManager em = getEntityManager();
         try {
             return em.find(Estacionamiento.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Estacionamiento> findEstacionamientoByVehiculo(String id) {
+        EntityManager em = getEntityManager();
+        try {
+            Query query = em.createQuery("Select e FROM Estacionamiento e WHERE e.vehiculo.placa = :id" );
+            query.setParameter("id", id);
+            List<Estacionamiento> result = query.getResultList();
+
+            return result;
         } finally {
             em.close();
         }

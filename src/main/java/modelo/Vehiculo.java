@@ -90,5 +90,8 @@ public class Vehiculo implements Serializable {
         this.propietario = propietario;
     }
 
-
+    @Override
+    public String toString(){
+    return this.placa +" "+ this.marca;
+}
 }

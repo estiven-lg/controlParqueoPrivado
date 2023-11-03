@@ -2,13 +2,11 @@ package servicios;
 
 public class Validaciones {
 
-    public static boolean validarCUI(String cui) throws Exception {
+    public static boolean validarCUI(long cuiInt) {
+
+        String cui = Long.toString(cuiInt);
         // 2990 16536 02 08
         if (cui.length() != 13) {
-            return false;
-        }
-
-        if (!validarEnteros(cui)) {
             return false;
         }
 
@@ -70,45 +68,34 @@ public class Validaciones {
 
     }
 
-    public static boolean validarNIT(String nit) throws Exception {
-        if (nit.length() == 9) {
+    public static boolean validarNIT(String nit) {
+        try {
+
+            if (nit.length() != 9) {
+                return false;
+            }
+            int posicionGuion = nit.indexOf("-");
+
+            String[] correlativo = nit.substring(0, 7).split("");
+            String digitoVerificador = nit.substring(8, 9);
+            int factor = correlativo.length + 1;
+            int valor = 0;
+            for (int i = 0; i < 7; i++) {
+                valor += Integer.parseInt(correlativo[i]) * factor;
+                factor -= 1;
+            }
+            int residuo = valor % 11;
+            String resultado = Integer.toString(11 - residuo);
+
+            return digitoVerificador.equals(resultado);
+        } catch (Exception e) {
+            System.out.println(e);
             return false;
         }
-        int posicionGuion = nit.indexOf("-");
-        String[] correlativo = nit.substring(0, posicionGuion).split("");
-        String digitoVerificador = nit.substring(posicionGuion + 1, nit.length());
-        int factor = correlativo.length + 1;
-        int valor = 0;
-        for (int i = 0; i < posicionGuion; i++) {
-            valor += Integer.parseInt(correlativo[i]) * factor;
-            factor -= 1;
-        }
-        int residuo = valor % 11;
-        String resultado = Integer.toString(11 - residuo);
-        
-
-        return digitoVerificador.equals(resultado);
-
     }
 
-    public static boolean validarFecha(String fecha) throws Exception {
-        String[] enterosArray = fecha.split("/");
-        if (!validarEnteros(fecha.replace("/", ""))) {
-            return false;
-        }
-
-        if (enterosArray.length != 3) {
-            return false;
-        }
-
-        if (fecha.length() != 10) {
-            return false;
-        }
-
-        int dia = Integer.parseInt(enterosArray[0]);
-        int mes = Integer.parseInt(enterosArray[1]);
-        int anio = Integer.parseInt(enterosArray[2]);
-
+    public static boolean validarFecha(int dia, int mes, int anio) {
+ 
         switch (mes) {
             case 1:
             case 3:
@@ -160,7 +147,7 @@ public class Validaciones {
         return true;
     }
 
-    public static boolean validarPlacas(String placa) throws Exception {
+    public static boolean validarPlacas(String placa)  {
         String[] placaArray = placa.split("");
         if (placa.length() != 7) {
             return false;

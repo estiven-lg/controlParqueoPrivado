@@ -12,7 +12,7 @@ import javax.persistence.TemporalType;
 public class Persona implements Serializable {
 
     @Id
-    private int cui;
+    private long cui;
 
     @Basic
     private String nit;
@@ -37,11 +37,11 @@ public class Persona implements Serializable {
     public Persona() {
     }
 
-    public int getCui() {
+    public long getCui() {
         return cui;
     }
 
-    public void setCui(int cui) {
+    public void setCui(long cui) {
         this.cui = cui;
     }
 

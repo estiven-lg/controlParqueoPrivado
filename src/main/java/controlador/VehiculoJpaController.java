@@ -15,6 +15,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import modelo.Estacionamiento;
 import modelo.Vehiculo;
 
 /**
@@ -127,6 +128,19 @@ public class VehiculoJpaController implements Serializable {
         EntityManager em = getEntityManager();
         try {
             return em.find(Vehiculo.class, id);
+        } finally {
+            em.close();
+        }
+    }
+
+    public List<Vehiculo> findVehiculosByPersona(Long cui) {
+        EntityManager em = getEntityManager();
+        try {
+            Query query = em.createQuery("Select e FROM Vehiculo e WHERE e.propietario.cui = :cui");
+            query.setParameter("cui", cui);
+            List<Vehiculo> result = query.getResultList();
+
+            return result;
         } finally {
             em.close();
         }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package modelo;
 
 import java.io.Serializable;
@@ -10,25 +6,20 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-/**
- *
- * @author lafer
- */
 @Entity
 public class Vehiculo implements Serializable {
 
     @Id
     private String placa;
-    
+
     @Basic
     private String marca;
     private String linea;
     private String modelo;
     private String color;
-    
+
     @ManyToOne
     private Persona propietario;
-    
 
     public Vehiculo(String placa, String marca, String linea, String modelo, String color, Persona propietario) {
         this.placa = placa;
@@ -91,7 +82,7 @@ public class Vehiculo implements Serializable {
     }
 
     @Override
-    public String toString(){
-    return this.placa +" "+ this.marca;
-}
+    public String toString() {
+        return this.placa + " " + this.marca;
+    }
 }

@@ -22,7 +22,6 @@ public class ControladoraPersistencia {
         } catch (Exception ex) {
             Logger.getLogger(ControladoraPersistencia.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public void actualizarPersona(Persona persona) {
@@ -31,7 +30,6 @@ public class ControladoraPersistencia {
         } catch (Exception ex) {
             Logger.getLogger(ControladoraPersistencia.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     public List<Persona> obtenerPersonas() {
@@ -42,19 +40,27 @@ public class ControladoraPersistencia {
         return this.controlPersona.findPersona(cui);
     }
 
-    public void eliminarPersona(long id) {
+    public void eliminarPersona(long cui) {
+       
+            List<Vehiculo> vehiculosDelPropietario = this.controlVehiculo.findVehiculosByPersona(cui);
+            for (Vehiculo vehiculo : vehiculosDelPropietario) {
+                System.out.println(vehiculo);
+                this.eliminarVehiculo(vehiculo.getPlaca());
+            }
+            
         try {
-            this.controlPersona.destroy(id);
+            this.controlPersona.destroy(cui);
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(ControladoraPersistencia.class.getName()).log(Level.SEVERE, null, ex);
         }
+     
     }
 
     public boolean yaExistePersona(long cui) {
         return (this.controlPersona.findPersona(cui) != null);
     }
 
-    // Metodos Vehiculo
+    // Metodos de Vehiculo
     public void crearVehiculo(Vehiculo vehiculo) {
         try {
             this.controlVehiculo.create(vehiculo);
@@ -82,6 +88,10 @@ public class ControladoraPersistencia {
 
     public void eliminarVehiculo(String placa) {
         try {
+            List<Estacionamiento> estacionamientosPresentes = controlEstacionamiento.findEstacionamientoByVehiculo(placa);
+            for (Estacionamiento estacionamientoOcupado : estacionamientosPresentes) {
+                this.vaciarEstacionamiento(estacionamientoOcupado.getNumeroParqueo());
+            }
             this.controlVehiculo.destroy(placa);
         } catch (NonexistentEntityException ex) {
             Logger.getLogger(ControladoraPersistencia.class.getName()).log(Level.SEVERE, null, ex);
@@ -92,7 +102,7 @@ public class ControladoraPersistencia {
         return (this.controlVehiculo.findVehiculo(placa) != null);
     }
 
-    //estacionamietos metodos
+    //metodos de estacionamietos
     public Estacionamiento encontrarEstacionamieto(int id) {
         Estacionamiento estacionamiento = this.controlEstacionamiento.findEstacionamiento(id);
         if (estacionamiento == null) {
@@ -106,10 +116,10 @@ public class ControladoraPersistencia {
         Estacionamiento estacionamiento;
 
         List<Estacionamiento> estacionamientosPresentes = controlEstacionamiento.findEstacionamientoByVehiculo(vehiculo.getPlaca());
-
         for (Estacionamiento estacionamientoOcupado : estacionamientosPresentes) {
             this.vaciarEstacionamiento(estacionamientoOcupado.getNumeroParqueo());
         }
+
         try {
             if (this.controlEstacionamiento.findEstacionamiento(numEstacionamiento) == null) {
                 estacionamiento = new Estacionamiento(numEstacionamiento, vehiculo, today, false);
@@ -143,5 +153,4 @@ public class ControladoraPersistencia {
             return null;
         }
     }
-
 }

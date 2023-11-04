@@ -38,7 +38,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
 
     private void limpiarVehiculosCampos() {
-
         this.placaTXT.setText("");
         this.marcaTXT.setText("");
         this.lineaTXT.setText("");
@@ -142,9 +141,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
             }
             index++;
         }
-        System.out.println(index);
 
-        this.PropietarioSelect.setSelectedIndex(index);
+        this.PropietarioSelect.setSelectedIndex(index + 1);
     }
 
     private void onEstacionamientoEdit(Estacionamiento estacionamiento) {
@@ -155,9 +153,14 @@ public class MenuPrincipal extends javax.swing.JFrame {
         if (estacionamiento.isDisponible()) {
             this.isDisponibleLabel.setText("Disponble");
             this.isDisponibleLabel.setForeground(Color.GREEN);
+            this.ingresarVehiculoBTN.setEnabled(true);
+            this.egresarVehiculoBTN.setEnabled(false);
+
         } else {
             this.isDisponibleLabel.setText("Ocupado");
             this.isDisponibleLabel.setForeground(Color.RED);
+            this.ingresarVehiculoBTN.setEnabled(false);
+            this.egresarVehiculoBTN.setEnabled(true);
         }
 
         if (estacionamiento.getVehiculo() != null) {

@@ -9,6 +9,10 @@ import modelo.Estacionamiento;
 import modelo.Persona;
 import modelo.Vehiculo;
 
+/**
+ *
+ * @author lafer
+ */
 public class ControladoraPersistencia {
 
     EstacionamientoJpaController controlEstacionamiento = new EstacionamientoJpaController();
@@ -16,6 +20,12 @@ public class ControladoraPersistencia {
     VehiculoJpaController controlVehiculo = new VehiculoJpaController();
 
     // metodos de persona
+    
+    
+    /**
+     * Este metodo crea una persona en la tabla personas
+     * @param persona - persona a registrar
+     */
     public void crearPersona(Persona persona) {
         try {
             this.controlPersona.create(persona);
@@ -24,6 +34,10 @@ public class ControladoraPersistencia {
         }
     }
 
+    /**
+     * 
+     * @param persona 
+     */
     public void actualizarPersona(Persona persona) {
         try {
             this.controlPersona.edit(persona);
@@ -32,14 +46,27 @@ public class ControladoraPersistencia {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Persona> obtenerPersonas() {
         return this.controlPersona.findPersonaEntities();
     }
 
+    /**
+     *
+     * @param cui
+     * @return
+     */
     public Persona encontrarPersona(long cui) {
         return this.controlPersona.findPersona(cui);
     }
 
+    /**
+     *
+     * @param cui
+     */
     public void eliminarPersona(long cui) {
        
             List<Vehiculo> vehiculosDelPropietario = this.controlVehiculo.findVehiculosByPersona(cui);
@@ -56,11 +83,21 @@ public class ControladoraPersistencia {
      
     }
 
+    /**
+     *
+     * @param cui
+     * @return
+     */
     public boolean yaExistePersona(long cui) {
         return (this.controlPersona.findPersona(cui) != null);
     }
 
     // Metodos de Vehiculo
+
+    /**
+     *
+     * @param vehiculo
+     */
     public void crearVehiculo(Vehiculo vehiculo) {
         try {
             this.controlVehiculo.create(vehiculo);
@@ -69,6 +106,10 @@ public class ControladoraPersistencia {
         }
     }
 
+    /**
+     *
+     * @param Vehiculo
+     */
     public void actualizarVehiculo(Vehiculo Vehiculo) {
         try {
             this.controlVehiculo.edit(Vehiculo);
@@ -78,14 +119,27 @@ public class ControladoraPersistencia {
 
     }
 
+    /**
+     *
+     * @return
+     */
     public List<Vehiculo> obtenerVehiculos() {
         return controlVehiculo.findVehiculoEntities(0, 0);
     }
 
+    /**
+     *
+     * @param placa
+     * @return
+     */
     public Vehiculo encontrarVehiculo(String placa) {
         return this.controlVehiculo.findVehiculo(placa);
     }
 
+    /**
+     *
+     * @param placa
+     */
     public void eliminarVehiculo(String placa) {
         try {
             List<Estacionamiento> estacionamientosPresentes = controlEstacionamiento.findEstacionamientoByVehiculo(placa);
@@ -98,11 +152,22 @@ public class ControladoraPersistencia {
         }
     }
 
+    /**
+     *
+     * @param placa
+     * @return
+     */
     public boolean yaExisteVehiculo(String placa) {
         return (this.controlVehiculo.findVehiculo(placa) != null);
     }
 
     //metodos de estacionamietos
+
+    /**
+     *
+     * @param id
+     * @return
+     */
     public Estacionamiento encontrarEstacionamieto(int id) {
         Estacionamiento estacionamiento = this.controlEstacionamiento.findEstacionamiento(id);
         if (estacionamiento == null) {
@@ -111,6 +176,12 @@ public class ControladoraPersistencia {
         return estacionamiento;
     }
 
+    /**
+     *
+     * @param numEstacionamiento
+     * @param vehiculo
+     * @return
+     */
     public Estacionamiento llenarEstacionamiento(int numEstacionamiento, Vehiculo vehiculo) {
         Date today = new Date(System.currentTimeMillis());
         Estacionamiento estacionamiento;
@@ -136,6 +207,11 @@ public class ControladoraPersistencia {
         }
     }
 
+    /**
+     *
+     * @param numEstacionamiento
+     * @return
+     */
     public Estacionamiento vaciarEstacionamiento(int numEstacionamiento) {
         Estacionamiento estacionamiento;
         try {

@@ -11,6 +11,10 @@ import modelo.Persona;
 import modelo.Vehiculo;
 import servicios.Validaciones;
 
+/**
+ *
+ * @author lafer
+ */
 public class MenuPrincipal extends javax.swing.JFrame {
 
     ControladoraPersistencia controlador = new ControladoraPersistencia();

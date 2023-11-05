@@ -12,7 +12,6 @@ import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import modelo.Estacionamiento;
-import modelo.Vehiculo;
 
 public class EstacionamientoJpaController implements Serializable {
 

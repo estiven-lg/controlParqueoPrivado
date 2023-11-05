@@ -1,17 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
 package com.umg.controlparqueoprivado;
 
-import controlador.ControladoraPersistencia;
 import vista.MenuPrincipal;
 
 /**
  *
- * @author alumno
+ * @author lafer
  */
 public class ControlParqueoPrivado {
 
+    /**
+     * Metodo principal donde montamos la ventana
+     * @param args 
+     */
     public static void main(String[] args) {
         MenuPrincipal menu = new MenuPrincipal();
         menu.setVisible(true);

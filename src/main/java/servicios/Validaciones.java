@@ -1,7 +1,16 @@
 package servicios;
 
+/**
+ *
+ * @author lafer
+ */
 public class Validaciones {
 
+    /**
+     *
+     * @param cuiInt
+     * @return
+     */
     public static boolean validarCUI(long cuiInt) {
 
         String cui = Long.toString(cuiInt);
@@ -68,6 +77,11 @@ public class Validaciones {
 
     }
 
+    /**
+     *
+     * @param nit
+     * @return
+     */
     public static boolean validarNIT(String nit) {
         try {
 
@@ -94,6 +108,13 @@ public class Validaciones {
         }
     }
 
+    /**
+     *
+     * @param dia
+     * @param mes
+     * @param anio
+     * @return
+     */
     public static boolean validarFecha(int dia, int mes, int anio) {
  
         switch (mes) {
@@ -136,6 +157,12 @@ public class Validaciones {
         return true;
     }
 
+    /**
+     *
+     * @param enteros
+     * @return
+     * @throws Exception
+     */
     public static boolean validarEnteros(String enteros) throws Exception {
         String[] enterosArray = enteros.split("");
         for (int i = 0; i < enterosArray.length; i++) {
@@ -147,6 +174,11 @@ public class Validaciones {
         return true;
     }
 
+    /**
+     *
+     * @param placa
+     * @return
+     */
     public static boolean validarPlacas(String placa)  {
         String[] placaArray = placa.split("");
         if (placa.length() != 7) {
